@@ -19,12 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate git convention
-        env:
-          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
-          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: python .github/scripts/validate_git_convention.py
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:

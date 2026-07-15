@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: 기능 개발 작업을 위한 이슈 템플릿
-title: "[FEAT] "
+title: "[feat] "
 labels: enhancement
 assignees: ""
 ---

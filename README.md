@@ -47,10 +47,9 @@
 
 현재 설계 기준의 핵심 엔티티는 아래와 같습니다.
 
-#### User
+#### Member
 
 - `id`
-- `userIdentifier`
 - `createdAt`
 
 사용자 식별값을 관리합니다.
@@ -100,8 +99,8 @@
 
 #### 엔티티 관계
 
-- `User 1 : 1 PointWallet`
-- `User 1 : N CoffeeOrder`
+- `Member 1 : 1 PointWallet`
+- `Member 1 : N CoffeeOrder`
 - `CoffeeMenu 1 : N CoffeeOrder`
 - `CoffeeOrder 1 : 1 OrderOutbox`
 

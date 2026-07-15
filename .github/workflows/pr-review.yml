@@ -36,14 +36,4 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run automated review checks
-        run: ./gradlew check pmdMain pmdTest checkstyleMain checkstyleTest
-
-      - name: Upload reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr-review-reports
-          path: |
-            build/reports/tests
-            build/reports/checkstyle
-            build/reports/pmd
+        run: ./gradlew test

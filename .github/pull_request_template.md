@@ -1,14 +1,52 @@
-## What changed
+## 작업 내용
 
-- Explain the main change briefly.
+- 이번 PR에서 변경한 핵심 내용을 작성한다.
 
-## Review focus
+## 관련 이슈
 
-- Share the risky parts reviewers should inspect first.
+- close #
 
-## Checklist
+## 변경 이유
 
-- [ ] I ran local tests
-- [ ] I checked edge cases and validation
-- [ ] I considered concurrency, state consistency, and rollback behavior
-- [ ] I added or updated tests when behavior changed
+- 왜 이 변경이 필요한지 작성한다.
+
+## 중점 리뷰 포인트
+
+- 리뷰어가 먼저 봐야 할 위험 요소나 확인 포인트를 작성한다.
+
+## 테스트
+
+- [ ] 로컬 테스트를 실행했다
+- [ ] 정상 케이스를 확인했다
+- [ ] 경계값 케이스를 확인했다
+- [ ] 예외 케이스를 확인했다
+- [ ] 테스트 코드를 추가했다
+- [ ] 테스트 생략 사유가 있다
+
+## AI 사용 여부
+
+- [ ] AI를 사용하지 않았다
+- [ ] AI를 사용했다
+
+### AI 사용 범위
+
+- [ ] 코드 초안 작성
+- [ ] 테스트 케이스 도출
+- [ ] 리팩터링 아이디어 정리
+- [ ] 예외 케이스 점검
+- [ ] 문서 작성 또는 수정
+- [ ] 쿼리 또는 성능 개선 아이디어 검토
+- [ ] 기타:
+
+### AI 결과 검증 여부
+
+- [ ] AI가 제안한 내용을 직접 읽고 검토했다
+- [ ] AI가 제안한 코드의 동작을 직접 확인했다
+- [ ] 로컬 실행으로 결과를 확인했다
+- [ ] 테스트 코드 또는 기존 테스트로 검증했다
+- [ ] 프로젝트 컨벤션에 맞게 수정했다
+- [ ] 불필요하거나 부정확한 제안은 제외했다
+
+## 스크린샷 또는 참고 사항
+
+- 필요한 경우 작성한다.

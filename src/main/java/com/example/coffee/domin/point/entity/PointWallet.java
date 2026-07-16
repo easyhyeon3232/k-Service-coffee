@@ -42,6 +42,16 @@ public class PointWallet extends BaseTimeEntity {
     @Column(nullable = false)
     private long balance;
 
+    private PointWallet(Member member, long balance) {
+        this.member = member;
+        this.balance = balance;
+    }
+
+    // 회원 전용 포인트 지갑을 생성한다.
+    public static PointWallet create(Member member) {
+        return new PointWallet(member, 0L);
+    }
+
     // 포인트를 충전한다.
     public void charge(long amount) {
         validatePositiveAmount(amount);

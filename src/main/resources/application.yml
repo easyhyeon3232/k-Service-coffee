@@ -5,10 +5,13 @@ spring:
     url: ${MYSQL_URL:jdbc:mysql://localhost:3306/coffee?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:}
+    password: ${MYSQL_PASSWORD}
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:never}
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: ${JPA_DDL_AUTO:create}
     properties:
       hibernate:
         format_sql: true

@@ -14,6 +14,9 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 포인트 충전과 충전 이력 저장을 담당하는 서비스다.
+ */
 @Service
 @RequiredArgsConstructor
 public class PointService {

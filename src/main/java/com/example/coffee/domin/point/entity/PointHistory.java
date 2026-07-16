@@ -1,6 +1,6 @@
-package com.example.coffee.point.domain;
+package com.example.coffee.domin.point.entity;
 
-import com.example.coffee.member.domain.Member;
+import com.example.coffee.domin.member.entity.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +17,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 포인트 충전과 사용 이력을 저장하는 엔티티다.
+ */
 @Getter
 @Entity
 @Table(name = "point_history")
@@ -28,7 +31,7 @@ public class PointHistory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Enumerated(EnumType.STRING)
@@ -41,6 +44,7 @@ public class PointHistory {
     @Column(nullable = false)
     private long balanceAfter;
 
+    @Column(name = "reference_order_id")
     private Long referenceOrderId;
 
     @Column(nullable = false)
@@ -55,10 +59,12 @@ public class PointHistory {
         this.createdAt = LocalDateTime.now();
     }
 
+    // 충전 이력을 생성한다.
     public static PointHistory charge(Member member, long amount, long balanceAfter) {
         return new PointHistory(member, PointHistoryType.CHARGE, amount, balanceAfter, null);
     }
 
+    // 사용 이력을 생성한다.
     public static PointHistory use(Member member, long amount, long balanceAfter, Long referenceOrderId) {
         return new PointHistory(member, PointHistoryType.USE, amount, balanceAfter, referenceOrderId);
     }

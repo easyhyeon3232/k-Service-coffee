@@ -1,4 +1,4 @@
-package com.example.coffee.order.domain;
+package com.example.coffee.domin.order.entity;
 
 import com.example.coffee.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -17,6 +17,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 주문 정보를 외부 플랫폼으로 전송하기 위한 아웃박스 엔티티다.
+ */
 @Getter
 @Entity
 @Table(name = "order_outbox")
@@ -50,6 +53,7 @@ public class OrderOutbox extends BaseTimeEntity {
         this.retryCount = 0;
     }
 
+    // 전송 대기 상태의 아웃박스 이벤트를 생성한다.
     public static OrderOutbox pending(CoffeeOrder order, String payload) {
         return new OrderOutbox(order, payload);
     }

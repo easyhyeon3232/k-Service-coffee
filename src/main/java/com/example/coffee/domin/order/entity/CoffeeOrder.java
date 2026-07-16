@@ -1,8 +1,8 @@
-package com.example.coffee.order.domain;
+package com.example.coffee.domin.order.entity;
 
 import com.example.coffee.common.entity.BaseTimeEntity;
-import com.example.coffee.member.domain.Member;
-import com.example.coffee.menu.domain.CoffeeMenu;
+import com.example.coffee.domin.member.entity.Member;
+import com.example.coffee.domin.menu.entity.CoffeeMenu;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +19,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 커피 주문과 결제 결과를 저장하는 주문 엔티티다.
+ */
 @Getter
 @Entity
 @Table(name = "coffee_order")
@@ -30,7 +33,7 @@ public class CoffeeOrder extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,6 +58,7 @@ public class CoffeeOrder extends BaseTimeEntity {
         this.orderedAt = LocalDateTime.now();
     }
 
+    // 완료된 주문 엔티티를 생성한다.
     public static CoffeeOrder completed(Member member, CoffeeMenu menu, long orderPrice) {
         return new CoffeeOrder(member, menu, orderPrice);
     }

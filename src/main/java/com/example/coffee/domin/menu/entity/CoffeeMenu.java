@@ -1,4 +1,4 @@
-package com.example.coffee.menu.domain;
+package com.example.coffee.domin.menu.entity;
 
 import com.example.coffee.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -13,6 +13,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 주문 가능한 커피 메뉴를 표현하는 엔티티다.
+ */
 @Getter
 @Entity
 @Table(name = "coffee_menu")
@@ -33,6 +36,18 @@ public class CoffeeMenu extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private CoffeeMenuStatus status;
 
+    private CoffeeMenu(String name, long price, CoffeeMenuStatus status) {
+        this.name = name;
+        this.price = price;
+        this.status = status;
+    }
+
+    // 테스트나 초기 데이터 구성 시 사용할 메뉴 엔티티를 생성한다.
+    public static CoffeeMenu create(String name, long price, CoffeeMenuStatus status) {
+        return new CoffeeMenu(name, price, status);
+    }
+
+    // 현재 메뉴가 주문 가능한 상태인지 확인한다.
     public boolean isOrderable() {
         return status == CoffeeMenuStatus.ON_SALE;
     }

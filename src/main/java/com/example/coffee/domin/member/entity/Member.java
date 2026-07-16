@@ -1,4 +1,4 @@
-package com.example.coffee.member.domain;
+package com.example.coffee.domin.member.entity;
 
 import com.example.coffee.common.entity.BaseTimeEntity;
 import jakarta.persistence.Entity;
@@ -10,6 +10,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 주문과 포인트의 주체가 되는 회원 엔티티다.
+ */
 @Getter
 @Entity
 @Table(name = "member")

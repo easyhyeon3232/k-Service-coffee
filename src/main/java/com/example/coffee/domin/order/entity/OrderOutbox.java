@@ -18,7 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 주문 정보를 외부 플랫폼으로 전송하기 위한 아웃박스 엔티티다.
+ * 주문 정보를 외부 데이터 수집 플랫폼으로 전달하기 위한 outbox 엔티티다.
  */
 @Getter
 @Entity
@@ -53,8 +53,21 @@ public class OrderOutbox extends BaseTimeEntity {
         this.retryCount = 0;
     }
 
-    // 전송 대기 상태의 아웃박스 이벤트를 생성한다.
+    // 전송 대기 상태의 outbox 이벤트를 생성한다.
     public static OrderOutbox pending(CoffeeOrder order, String payload) {
         return new OrderOutbox(order, payload);
+    }
+
+    // 전송 성공 상태로 변경한다.
+    public void markSent() {
+        this.status = OutboxStatus.SENT;
+        this.lastAttemptAt = LocalDateTime.now();
+    }
+
+    // 전송 실패 상태로 변경하고 재시도 횟수를 증가시킨다.
+    public void markFailed() {
+        this.status = OutboxStatus.FAILED;
+        this.retryCount += 1;
+        this.lastAttemptAt = LocalDateTime.now();
     }
 }

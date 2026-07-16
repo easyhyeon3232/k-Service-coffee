@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 회원 포인트 충전 요청을 처리하는 API 컨트롤러다.
+ */
 @RestController
 @RequestMapping("/api/points")
 @RequiredArgsConstructor

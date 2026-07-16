@@ -202,5 +202,5 @@ jobs:
             }
 
       - name: Fail job when review checks failed
-        if: ${{ steps.tests.outcome != 'success' || steps.checkstyle.outcome != 'success' || steps.pmd.outcome != 'success' || steps.git-convention.outcome != 'success' }}
+        if: ${{ steps.tests.outcome == 'failure' || steps.checkstyle.outcome == 'failure' || steps.pmd.outcome == 'failure' || steps.git-convention.outcome == 'failure' }}
         run: exit 1

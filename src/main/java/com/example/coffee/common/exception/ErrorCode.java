@@ -4,13 +4,15 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
- * 서비스 전역에서 공통으로 사용할 에러코드 상수다.
+ * 서비스 전역에서 공통으로 사용하는 에러 코드 상수다.
  */
 @Getter
 public enum ErrorCode {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "잘못된 입력값입니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "회원을 찾을 수 없습니다."),
     INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "P001", "충전 금액은 0보다 커야 합니다."),
     INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "P002", "포인트가 부족합니다."),
+    POINT_CHARGE_CONFLICT(HttpStatus.CONFLICT, "P003", "동시 요청으로 인해 충전에 실패했습니다. 잠시 후 다시 시도해주세요."),
     MENU_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "메뉴를 찾을 수 없습니다."),
     MENU_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "M002", "현재 판매 중인 메뉴가 아닙니다."),
     MENU_LIST_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "M003", "메뉴 목록 조회에 실패했습니다."),
@@ -25,5 +27,4 @@ public enum ErrorCode {
         this.code = code;
         this.message = message;
     }
-
 }

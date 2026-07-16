@@ -476,7 +476,7 @@ Redis의 `INCR`, `DECR`, Lua Script 같은 원자 연산도 고려할 수 있지
 
 락 키는 사용자 단위로 관리합니다.
 
-- `point:user:{userId}`
+- `point:member:{memberId}`
 
 주문 요청 처리 순서는 아래와 같습니다.
 

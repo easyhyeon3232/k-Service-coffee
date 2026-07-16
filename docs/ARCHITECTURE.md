@@ -56,7 +56,7 @@ erDiagram
 
 ```mermaid
 flowchart TD
-    A["주문 요청 수신"] --> B["Redis 분산락 획득<br/>point:user:{userId}"]
+    A["주문 요청 수신"] --> B["Redis 분산락 획득<br/>point:member:{memberId}"]
     B --> C["트랜잭션 시작"]
     C --> D["사용자 포인트 조회"]
     D --> E["메뉴 조회"]

@@ -60,9 +60,6 @@ jobs:
       - name: Build review summary
         env:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          RUN_ID: ${{ github.run_id }}
-          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           python - <<'PY'
           import os
@@ -97,10 +94,6 @@ jobs:
               items.append(f"- `{path.as_posix()}:{line_number}` {message}")
 
           base_ref = os.environ["PR_BASE_REF"]
-          pr_number = os.environ["PR_NUMBER"]
-          run_id = os.environ["RUN_ID"]
-          run_attempt = os.environ["RUN_ATTEMPT"]
-
           changed = changed_files(base_ref)
           java_files = [
               Path(path)
@@ -171,12 +164,8 @@ jobs:
           findings = findings[:20]
 
           lines: list[str] = []
-          lines.append(f"<!-- pr-review-agent pr:{pr_number} run:{run_id} attempt:{run_attempt} -->")
+          lines.append("<!-- pr-review-agent -->")
           lines.append("## 자동 코드 리뷰 결과")
-          lines.append("")
-          lines.append(f"- PR 번호: `{pr_number}`")
-          lines.append(f"- 실행 ID: `{run_id}`")
-          lines.append(f"- 재시도 횟수: `{run_attempt}`")
           lines.append("")
 
           if changed:

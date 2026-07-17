@@ -2,6 +2,8 @@ package com.example.coffee.domin.menu.repository;
 
 import com.example.coffee.domin.menu.entity.CoffeeMenu;
 import java.util.List;
+
+import com.example.coffee.domin.menu.entity.CoffeeMenuStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -10,5 +12,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CoffeeMenuRepository extends JpaRepository<CoffeeMenu, Long> {
 
     // 전체 메뉴를 ID 오름차순으로 조회한다.
-    List<CoffeeMenu> findAllByOrderByIdAsc();
+    List<CoffeeMenu> findByStatusOrderByIdAsc(CoffeeMenuStatus status);
 }

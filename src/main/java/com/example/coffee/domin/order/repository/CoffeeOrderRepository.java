@@ -31,4 +31,6 @@ public interface CoffeeOrderRepository extends JpaRepository<CoffeeOrder, Long> 
             @Param("since") LocalDateTime since,
             Pageable pageable
     );
+
+    long countByMemberIdAndStatus(Long memberId, OrderStatus status);
 }

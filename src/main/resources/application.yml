@@ -27,3 +27,8 @@ spring:
 logging:
   level:
     org.hibernate.SQL: ${SQL_LOG_LEVEL:debug}
+
+outbox:
+  retry:
+    delay-ms: ${OUTBOX_RETRY_DELAY_MS:2000}
+    max-count: ${OUTBOX_MAX_RETRY_COUNT:3}

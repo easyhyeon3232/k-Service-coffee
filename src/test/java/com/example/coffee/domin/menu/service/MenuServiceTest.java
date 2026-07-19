@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import com.example.coffee.common.exception.BusinessException;
 import com.example.coffee.common.exception.ErrorCode;
@@ -18,6 +20,7 @@ import com.example.coffee.domin.order.entity.OrderStatus;
 import com.example.coffee.domin.order.repository.CoffeeOrderRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +42,9 @@ class MenuServiceTest {
     @Mock
     private CoffeeOrderRepository coffeeOrderRepository;
 
+    @Mock
+    private PopularMenuCacheService popularMenuCacheService;
+
     @Test
     @DisplayName("메뉴 목록 조회 시 메뉴 응답 DTO 목록을 반환한다")
     void getMenusReturnsMenuResponses() {
@@ -57,14 +63,33 @@ class MenuServiceTest {
     }
 
     @Test
-    @DisplayName("인기 메뉴 조회 시 최근 7일 기준 상위 3개 메뉴를 반환한다")
-    void getPopularMenusReturnsTopThreeMenus() {
+    @DisplayName("인기 메뉴 캐시가 있으면 DB 조회 없이 캐시 결과를 반환한다")
+    void getPopularMenusReturnsCachedResultFirst() {
         List<PopularMenuResponse> popularMenus = List.of(
                 new PopularMenuResponse(1L, "Americano", 3000L, 5L),
                 new PopularMenuResponse(2L, "Latte", 4000L, 3L),
                 new PopularMenuResponse(3L, "Mocha", 4500L, 2L)
         );
 
+        given(popularMenuCacheService.getPopularMenus()).willReturn(Optional.of(popularMenus));
+
+        List<PopularMenuResponse> response = menuService.getPopularMenus();
+
+        assertThat(response).hasSize(3);
+        assertThat(response.getFirst().name()).isEqualTo("Americano");
+        verify(coffeeOrderRepository, never()).findPopularMenus(any(), any(), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("인기 메뉴 캐시가 없으면 DB 집계 후 캐시에 저장한다")
+    void getPopularMenusLoadsFromDatabaseWhenCacheMisses() {
+        List<PopularMenuResponse> popularMenus = List.of(
+                new PopularMenuResponse(1L, "Americano", 3000L, 5L),
+                new PopularMenuResponse(2L, "Latte", 4000L, 3L),
+                new PopularMenuResponse(3L, "Mocha", 4500L, 2L)
+        );
+
+        given(popularMenuCacheService.getPopularMenus()).willReturn(Optional.empty());
         given(coffeeOrderRepository.findPopularMenus(
                 eq(OrderStatus.COMPLETED),
                 any(LocalDateTime.class),
@@ -74,15 +99,14 @@ class MenuServiceTest {
         List<PopularMenuResponse> response = menuService.getPopularMenus();
 
         assertThat(response).hasSize(3);
-        assertThat(response.get(0).name()).isEqualTo("Americano");
-        assertThat(response.get(0).orderCount()).isEqualTo(5L);
         assertThat(response.get(1).name()).isEqualTo("Latte");
-        assertThat(response.get(2).name()).isEqualTo("Mocha");
+        verify(popularMenuCacheService).cachePopularMenus(popularMenus);
     }
 
     @Test
     @DisplayName("인기 메뉴 조회 중 DB 예외가 발생하면 공통 비즈니스 예외로 변환한다")
     void getPopularMenusThrowsBusinessExceptionWhenRepositoryFails() {
+        given(popularMenuCacheService.getPopularMenus()).willReturn(Optional.empty());
         given(coffeeOrderRepository.findPopularMenus(
                 eq(OrderStatus.COMPLETED),
                 any(LocalDateTime.class),

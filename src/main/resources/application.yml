@@ -32,3 +32,9 @@ outbox:
   retry:
     delay-ms: ${OUTBOX_RETRY_DELAY_MS:2000}
     max-count: ${OUTBOX_MAX_RETRY_COUNT:3}
+
+popular-menu:
+  cache:
+    ttl-seconds: ${POPULAR_MENU_CACHE_TTL_SECONDS:300}
+  daily-key:
+    ttl-days: ${POPULAR_MENU_DAILY_KEY_TTL_DAYS:8}

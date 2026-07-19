@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -22,7 +23,12 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @Entity
-@Table(name = "order_outbox")
+@Table(
+        name = "order_outbox",
+        indexes = {
+                @Index(name = "idx_order_outbox_status_created_at", columnList = "status, created_at")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderOutbox extends BaseTimeEntity {
 
@@ -64,7 +70,7 @@ public class OrderOutbox extends BaseTimeEntity {
         this.lastAttemptAt = LocalDateTime.now();
     }
 
-    // 전송 실패 횟수를 증가시키고, 한도 초과 시 FAILED로 전환한다.
+    // 전송 실패 횟수를 증가시키고 재시도 초과 시 FAILED로 전환한다.
     public void markRetryFailure(int maxRetryCount) {
         this.retryCount += 1;
         this.lastAttemptAt = LocalDateTime.now();

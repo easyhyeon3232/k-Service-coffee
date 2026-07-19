@@ -76,7 +76,7 @@ class MenuServiceTest {
         List<PopularMenuResponse> response = menuService.getPopularMenus();
 
         assertThat(response).hasSize(3);
-        assertThat(response.get(0).name()).isEqualTo("Americano");
+        assertThat(response.getFirst().name()).isEqualTo("Americano");
         verify(coffeeOrderRepository, never()).findPopularMenus(any(), any(), any(Pageable.class));
     }
 

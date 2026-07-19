@@ -69,7 +69,7 @@ class PopularMenuCacheServiceTest {
 
         assertThat(result).isPresent();
         assertThat(result.orElseThrow()).hasSize(2);
-        assertThat(result.orElseThrow().get(0).name()).isEqualTo("Americano");
+        assertThat(result.orElseThrow().getFirst().name()).isEqualTo("Americano");
     }
 
     @Test

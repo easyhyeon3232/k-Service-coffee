@@ -18,6 +18,8 @@ public enum ErrorCode {
     MENU_NOT_ON_SALE(HttpStatus.BAD_REQUEST, "M002", "현재 판매 중인 메뉴가 아닙니다."),
     MENU_LIST_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "M003", "메뉴 목록 조회에 실패했습니다."),
     POPULAR_MENU_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "M004", "인기 메뉴 조회에 실패했습니다."),
+    ORDER_REQUEST_IN_PROGRESS(HttpStatus.CONFLICT, "O001", "동일한 주문 요청이 처리 중입니다."),
+    IDEMPOTENCY_KEY_CONFLICT(HttpStatus.CONFLICT, "O002", "이미 다른 요청에 사용된 idempotency key입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "서버 내부 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;

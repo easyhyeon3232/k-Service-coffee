@@ -27,7 +27,11 @@ public class OrderController {
     public ResponseEntity<CommonResponse<OrderCreateResponse>> order(
             @Valid @RequestBody OrderCreateRequest request
     ) {
-        OrderCreateResponse response = orderFacade.order(request.memberId(), request.menuId());
+        OrderCreateResponse response = orderFacade.order(
+                request.memberId(),
+                request.menuId(),
+                request.idempotencyKey()
+        );
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 }

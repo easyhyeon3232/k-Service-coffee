@@ -3,7 +3,7 @@ package com.example.coffee.domin.point.controller;
 import com.example.coffee.common.response.CommonResponse;
 import com.example.coffee.domin.point.dto.PointChargeRequest;
 import com.example.coffee.domin.point.dto.PointChargeResponse;
-import com.example.coffee.domin.point.service.PointService;
+import com.example.coffee.domin.point.service.PointFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PointController {
 
-    private final PointService pointService;
+    private final PointFacade pointFacade;
 
     // 회원 포인트를 충전한다.
     @PostMapping("/charge")
     public ResponseEntity<CommonResponse<PointChargeResponse>> charge(
             @Valid @RequestBody PointChargeRequest request
     ) {
-        PointChargeResponse response = pointService.charge(request.memberId(), request.amount());
+        PointChargeResponse response = pointFacade.charge(request.memberId(), request.amount());
         return ResponseEntity.ok(CommonResponse.success(response));
     }
 }

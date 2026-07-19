@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -23,7 +24,12 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @Entity
-@Table(name = "point_wallet")
+@Table(
+        name = "point_wallet",
+        indexes = {
+                @Index(name = "idx_point_wallet_member_id", columnList = "member_id")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointWallet extends BaseTimeEntity {
 

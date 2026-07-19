@@ -20,12 +20,12 @@ public class OrderFacade {
     private final OrderService orderService;
 
     // 같은 회원의 주문 결제 요청을 분산락으로 직렬화한다.
-    public OrderCreateResponse order(Long memberId, Long menuId) {
+    public OrderCreateResponse order(Long memberId, Long menuId, String idempotencyKey) {
         return redisDistributedLockManager.execute(
                 createLockKey(memberId),
                 WAIT_TIME,
                 LEASE_TIME,
-                () -> orderService.order(memberId, menuId)
+                () -> orderService.order(memberId, menuId, idempotencyKey)
         );
     }
 

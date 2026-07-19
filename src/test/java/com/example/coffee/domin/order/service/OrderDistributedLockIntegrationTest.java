@@ -37,6 +37,7 @@ class OrderDistributedLockIntegrationTest {
     private static final String DELETE_ORDER_OUTBOX = "delete from order_outbox";
     private static final String DELETE_POINT_WALLET = "delete from point_wallet";
     private static final String DELETE_COFFEE_MENU = "delete from coffee_menu";
+    private static final String DELETE_IDEMPOTENCY_KEY = "delete from idempotency_key";
     private static final String DELETE_MEMBER = "delete from member";
     private static final String INSERT_MEMBER = "insert into member (id, created_at, updated_at) values (1, now(), now())";
     private static final String INSERT_MENU = """
@@ -73,6 +74,7 @@ class OrderDistributedLockIntegrationTest {
         jdbcTemplate.update(DELETE_ORDER_OUTBOX);
         jdbcTemplate.update(DELETE_POINT_WALLET);
         jdbcTemplate.update(DELETE_COFFEE_MENU);
+        jdbcTemplate.update(DELETE_IDEMPOTENCY_KEY);
         jdbcTemplate.update(DELETE_MEMBER);
 
         jdbcTemplate.update(INSERT_MEMBER);
@@ -90,13 +92,15 @@ class OrderDistributedLockIntegrationTest {
         CountDownLatch readyLatch = new CountDownLatch(threadCount);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
         try (ExecutorService executorService = Executors.newFixedThreadPool(threadCount)) {
             for (int index = 0; index < threadCount; index++) {
+                final int requestNumber = index;
                 executorService.submit(() -> {
                     readyLatch.countDown();
                     await(startLatch);
                     try {
-                        orderFacade.order(1L, 1L);
+                        orderFacade.order(1L, 1L, "order-lock-test-" + requestNumber);
                         successCount.incrementAndGet();
                     } catch (BusinessException exception) {
                         failureCodes.add(exception.getErrorCode());

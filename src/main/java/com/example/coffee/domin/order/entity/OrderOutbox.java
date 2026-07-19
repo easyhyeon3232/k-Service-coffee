@@ -64,10 +64,21 @@ public class OrderOutbox extends BaseTimeEntity {
         this.lastAttemptAt = LocalDateTime.now();
     }
 
-    // 전송 실패 상태로 변경하고 재시도 횟수를 증가시킨다.
-    public void markFailed() {
-        this.status = OutboxStatus.FAILED;
+    // 전송 실패 횟수를 증가시키고, 한도 초과 시 FAILED로 전환한다.
+    public void markRetryFailure(int maxRetryCount) {
         this.retryCount += 1;
         this.lastAttemptAt = LocalDateTime.now();
+
+        if (retryCount >= maxRetryCount) {
+            this.status = OutboxStatus.FAILED;
+            return;
+        }
+
+        this.status = OutboxStatus.PENDING;
+    }
+
+    // 아직 재시도 가능한 outbox 이벤트인지 확인한다.
+    public boolean canRetry(int maxRetryCount) {
+        return status == OutboxStatus.PENDING && retryCount < maxRetryCount;
     }
 }

@@ -25,6 +25,15 @@ import org.springframework.test.context.ActiveProfiles;
 @EnabledIfEnvironmentVariable(named = "RUN_REDIS_INTEGRATION_TEST", matches = "true")
 class PointDistributedLockIntegrationTest {
 
+    private static final String POINT_LOCK_KEY = "lock:point:member:1";
+    private static final String DELETE_POINT_HISTORY = "delete from point_history";
+    private static final String DELETE_COFFEE_ORDER = "delete from coffee_order";
+    private static final String DELETE_ORDER_OUTBOX = "delete from order_outbox";
+    private static final String DELETE_POINT_WALLET = "delete from point_wallet";
+    private static final String DELETE_COFFEE_MENU = "delete from coffee_menu";
+    private static final String DELETE_MEMBER = "delete from member";
+    private static final String INSERT_MEMBER = "insert into member (id, created_at, updated_at) values (1, now(), now())";
+
     @Autowired
     private PointFacade pointFacade;
 
@@ -42,15 +51,15 @@ class PointDistributedLockIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        jdbcTemplate.update("delete from point_history");
-        jdbcTemplate.update("delete from coffee_order");
-        jdbcTemplate.update("delete from order_outbox");
-        jdbcTemplate.update("delete from point_wallet");
-        jdbcTemplate.update("delete from coffee_menu");
-        jdbcTemplate.update("delete from member");
+        jdbcTemplate.update(DELETE_POINT_HISTORY);
+        jdbcTemplate.update(DELETE_COFFEE_ORDER);
+        jdbcTemplate.update(DELETE_ORDER_OUTBOX);
+        jdbcTemplate.update(DELETE_POINT_WALLET);
+        jdbcTemplate.update(DELETE_COFFEE_MENU);
+        jdbcTemplate.update(DELETE_MEMBER);
 
-        jdbcTemplate.update("insert into member (id, created_at, updated_at) values (1, now(), now())");
-        clearLock("lock:point:member:1");
+        jdbcTemplate.update(INSERT_MEMBER);
+        clearLock();
     }
 
     @Test
@@ -61,25 +70,24 @@ class PointDistributedLockIntegrationTest {
         CountDownLatch readyLatch = new CountDownLatch(threadCount);
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threadCount);
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        try (ExecutorService executorService = Executors.newFixedThreadPool(threadCount)) {
+            for (int index = 0; index < threadCount; index++) {
+                executorService.submit(() -> {
+                    readyLatch.countDown();
+                    await(startLatch);
+                    try {
+                        pointFacade.charge(1L, 1000L);
+                        successCount.incrementAndGet();
+                    } finally {
+                        doneLatch.countDown();
+                    }
+                });
+            }
 
-        for (int index = 0; index < threadCount; index++) {
-            executorService.submit(() -> {
-                readyLatch.countDown();
-                await(startLatch);
-                try {
-                    pointFacade.charge(1L, 1000L);
-                    successCount.incrementAndGet();
-                } finally {
-                    doneLatch.countDown();
-                }
-            });
+            await(readyLatch);
+            startLatch.countDown();
+            assertThat(doneLatch.await(10, TimeUnit.SECONDS)).isTrue();
         }
-
-        readyLatch.await();
-        startLatch.countDown();
-        doneLatch.await(10, TimeUnit.SECONDS);
-        executorService.shutdown();
 
         long balance = pointWalletRepository.findByMemberId(1L).orElseThrow().getBalance();
         long chargeHistoryCount = pointHistoryRepository.countByMemberIdAndType(1L, PointHistoryType.CHARGE);
@@ -89,8 +97,8 @@ class PointDistributedLockIntegrationTest {
         assertThat(chargeHistoryCount).isEqualTo(threadCount);
     }
 
-    private void clearLock(String key) {
-        stringRedisTemplate.delete(key);
+    private void clearLock() {
+        stringRedisTemplate.delete(POINT_LOCK_KEY);
     }
 
     private void await(CountDownLatch latch) {

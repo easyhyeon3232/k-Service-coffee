@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,10 @@ public class MenuService {
 
     private final CoffeeMenuRepository coffeeMenuRepository;
     private final CoffeeOrderRepository coffeeOrderRepository;
+    private final PopularMenuCacheService popularMenuCacheService;
 
-    // 전체 메뉴를 조회해 응답 DTO로 변환한다.
+    // 판매 중인 메뉴 목록을 캐시와 함께 조회해 응답 DTO로 변환한다.
+    @Cacheable(cacheNames = "menus", key = "'on-sale'")
     @Transactional(readOnly = true)
     public List<MenuResponse> getMenus() {
         try {
@@ -41,18 +44,25 @@ public class MenuService {
         }
     }
 
-    // 최근 7일 기준으로 주문 수가 가장 많은 메뉴 3개를 조회한다.
+    // 최근 7일 기준 인기 메뉴 3개를 Redis 우선 조회 후, 없으면 DB에서 집계한다.
     @Transactional(readOnly = true)
     public List<PopularMenuResponse> getPopularMenus() {
         try {
-            return coffeeOrderRepository.findPopularMenus(
-                    OrderStatus.COMPLETED,
-                    LocalDateTime.now().minusDays(7),
-                    PageRequest.of(0, 3)
-            );
+            return popularMenuCacheService.getPopularMenus()
+                    .orElseGet(this::getPopularMenusFromDatabase);
         } catch (DataAccessException exception) {
             log.error("인기 메뉴 조회 중 DB 예외가 발생했습니다.", exception);
             throw new BusinessException(ErrorCode.POPULAR_MENU_FETCH_FAILED);
         }
+    }
+
+    private List<PopularMenuResponse> getPopularMenusFromDatabase() {
+        List<PopularMenuResponse> popularMenus = coffeeOrderRepository.findPopularMenus(
+                OrderStatus.COMPLETED,
+                LocalDateTime.now().minusDays(7),
+                PageRequest.of(0, 3)
+        );
+        popularMenuCacheService.cachePopularMenus(popularMenus);
+        return popularMenus;
     }
 }

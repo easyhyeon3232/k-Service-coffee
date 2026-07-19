@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.example.coffee.domin.menu.service.PopularMenuCacheService;
 import com.example.coffee.domin.order.entity.OrderOutbox;
 import com.example.coffee.domin.order.entity.OutboxStatus;
 import com.example.coffee.domin.order.repository.OrderOutboxRepository;
@@ -32,6 +33,9 @@ class OrderEventRelayServiceTest {
     @Mock
     private OrderEventSender orderEventSender;
 
+    @Mock
+    private PopularMenuCacheService popularMenuCacheService;
+
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(orderEventRelayService, "maxRetryCount", 3);
@@ -46,6 +50,7 @@ class OrderEventRelayServiceTest {
         orderEventRelayService.relay(new OrderCreatedEvent(1L));
 
         assertThat(orderOutbox.getStatus()).isEqualTo(OutboxStatus.SENT);
+        verify(popularMenuCacheService).recordOrder(orderOutbox.getOrder());
         verify(orderEventSender).send(orderOutbox.getPayload());
     }
 

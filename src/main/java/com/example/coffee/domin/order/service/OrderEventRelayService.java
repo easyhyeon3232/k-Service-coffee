@@ -1,5 +1,6 @@
 package com.example.coffee.domin.order.service;
 
+import com.example.coffee.domin.menu.service.PopularMenuCacheService;
 import com.example.coffee.domin.order.entity.OrderOutbox;
 import com.example.coffee.domin.order.entity.OutboxStatus;
 import com.example.coffee.domin.order.repository.OrderOutboxRepository;
@@ -21,6 +22,7 @@ public class OrderEventRelayService {
 
     private final OrderOutboxRepository orderOutboxRepository;
     private final OrderEventSender orderEventSender;
+    private final PopularMenuCacheService popularMenuCacheService;
 
     @Value("${outbox.retry.max-count:3}")
     private int maxRetryCount;
@@ -44,6 +46,7 @@ public class OrderEventRelayService {
 
     private void send(OrderOutbox orderOutbox) {
         try {
+            popularMenuCacheService.recordOrder(orderOutbox.getOrder());
             orderEventSender.send(orderOutbox.getPayload());
             orderOutbox.markSent();
         } catch (RuntimeException exception) {

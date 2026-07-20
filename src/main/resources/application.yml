@@ -12,6 +12,22 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: ${REDIS_TIMEOUT:3s}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:coffee-order-consumer}
+      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: ${KAFKA_ACKS:all}
+      retries: ${KAFKA_PRODUCER_RETRIES:3}
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
   sql:
     init:
       mode: ${SQL_INIT_MODE:never}
@@ -38,3 +54,12 @@ popular-menu:
     ttl-seconds: ${POPULAR_MENU_CACHE_TTL_SECONDS:300}
   daily-key:
     ttl-days: ${POPULAR_MENU_DAILY_KEY_TTL_DAYS:8}
+
+order-event:
+  kafka:
+    topic: ${ORDER_EVENT_KAFKA_TOPIC:coffee.order.created}
+    partitions: ${ORDER_EVENT_KAFKA_PARTITIONS:3}
+    replication-factor: ${ORDER_EVENT_KAFKA_REPLICATION_FACTOR:1}
+    consumer:
+      group-id: ${ORDER_EVENT_KAFKA_CONSUMER_GROUP_ID:coffee-order-consumer}
+      concurrency: ${ORDER_EVENT_KAFKA_CONCURRENCY:3}

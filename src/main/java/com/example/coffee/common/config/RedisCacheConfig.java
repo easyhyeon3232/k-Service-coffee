@@ -1,6 +1,8 @@
 package com.example.coffee.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +36,9 @@ public class RedisCacheConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        return new ObjectMapper();
+        // LocalDateTime 같은 Java Time 타입도 주문 이벤트 payload로 안전하게 직렬화한다.
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 }

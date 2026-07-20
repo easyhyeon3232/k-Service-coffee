@@ -2,7 +2,9 @@ package com.example.coffee.domin.order.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -51,7 +53,7 @@ class OrderEventRelayServiceTest {
 
         assertThat(orderOutbox.getStatus()).isEqualTo(OutboxStatus.SENT);
         verify(popularMenuCacheService).recordOrder(orderOutbox.getOrder());
-        verify(orderEventSender).send(orderOutbox.getPayload());
+        verify(orderEventSender).send(eq(1L), eq(orderOutbox.getPayload()));
     }
 
     @Test
@@ -60,7 +62,7 @@ class OrderEventRelayServiceTest {
         OrderOutbox orderOutbox = createOutbox();
         given(orderOutboxRepository.findById(1L)).willReturn(Optional.of(orderOutbox));
         org.mockito.Mockito.doThrow(new RuntimeException("send failed"))
-                .when(orderEventSender).send(orderOutbox.getPayload());
+                .when(orderEventSender).send(eq(1L), eq(orderOutbox.getPayload()));
 
         orderEventRelayService.relay(new OrderCreatedEvent(1L));
 
@@ -78,7 +80,7 @@ class OrderEventRelayServiceTest {
         orderEventRelayService.retryPendingEvents();
 
         assertThat(orderOutbox.getStatus()).isEqualTo(OutboxStatus.SENT);
-        verify(orderEventSender).send(orderOutbox.getPayload());
+        verify(orderEventSender).send(eq(1L), eq(orderOutbox.getPayload()));
     }
 
     @Test
@@ -91,7 +93,7 @@ class OrderEventRelayServiceTest {
         given(orderOutboxRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxStatus.PENDING))
                 .willReturn(List.of(orderOutbox));
         org.mockito.Mockito.doThrow(new RuntimeException("send failed"))
-                .when(orderEventSender).send(orderOutbox.getPayload());
+                .when(orderEventSender).send(eq(1L), eq(orderOutbox.getPayload()));
 
         orderEventRelayService.retryPendingEvents();
 
@@ -110,10 +112,13 @@ class OrderEventRelayServiceTest {
 
         orderEventRelayService.retryPendingEvents();
 
-        verify(orderEventSender, never()).send(anyString());
+        verify(orderEventSender, never()).send(org.mockito.ArgumentMatchers.anyLong(), anyString());
     }
 
     private OrderOutbox createOutbox() {
-        return OrderOutbox.pending(org.mockito.Mockito.mock(com.example.coffee.domin.order.entity.CoffeeOrder.class), "{\"orderId\":1}");
+        com.example.coffee.domin.order.entity.CoffeeOrder order =
+                org.mockito.Mockito.mock(com.example.coffee.domin.order.entity.CoffeeOrder.class);
+        lenient().when(order.getId()).thenReturn(1L);
+        return OrderOutbox.pending(order, "{\"orderId\":1}");
     }
 }

@@ -1,0 +1,58 @@
+services:
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: coffee-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # KRaft 모드 설정 (Node ID 및 역할)
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      # 리스너 설정
+      # CONTROLLER:9093   - KRaft 내부 컨트롤러 통신
+      # INTERNAL:29092    - Docker 내부 통신용 (Kafka-UI 연결)
+      # EXTERNAL:9092     - 호스트 PC 외부 접근용
+      KAFKA_LISTENERS: CONTROLLER://:9093,INTERNAL://:29092,EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # 단일 브로커 환경을 위한 replication factor 설정
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # 리밸런싱 딜레이 제거 (테스트 속도 향상)
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      # 로그 & 메타데이터 저장 경로
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - kafka-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: coffee-kafka-ui
+    ports:
+      - "8088:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kraft
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    depends_on:
+      - kafka
+    networks:
+      - kafka-net
+
+volumes:
+  kafka_data:
+
+networks:
+  kafka-net:
+    driver: bridge

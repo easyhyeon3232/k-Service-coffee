@@ -7,6 +7,7 @@ import com.example.coffee.domin.member.repository.MemberRepository;
 import com.example.coffee.domin.menu.entity.CoffeeMenu;
 import com.example.coffee.domin.menu.repository.CoffeeMenuRepository;
 import com.example.coffee.domin.order.dto.OrderCreateResponse;
+import com.example.coffee.domin.order.dto.OrderEventPayload;
 import com.example.coffee.domin.order.entity.CoffeeOrder;
 import com.example.coffee.domin.order.entity.IdempotencyKey;
 import com.example.coffee.domin.order.entity.OrderOutbox;
@@ -38,6 +39,7 @@ public class OrderService {
     private final OrderOutboxRepository orderOutboxRepository;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final OrderEventPayloadMapper orderEventPayloadMapper;
 
     // 메뉴 주문과 포인트 결제를 하나의 트랜잭션으로 처리한다.
     @Transactional
@@ -119,11 +121,14 @@ public class OrderService {
     }
 
     private String createPayload(CoffeeOrder coffeeOrder) {
-        return String.format(
-                "{\"memberId\":%d,\"menuId\":%d,\"orderPrice\":%d}",
-                coffeeOrder.getMember().getId(),
-                coffeeOrder.getMenu().getId(),
-                coffeeOrder.getOrderPrice()
+        return orderEventPayloadMapper.toJson(
+                new OrderEventPayload(
+                        coffeeOrder.getId(),
+                        coffeeOrder.getMember().getId(),
+                        coffeeOrder.getMenu().getId(),
+                        coffeeOrder.getOrderPrice(),
+                        coffeeOrder.getOrderedAt()
+                )
         );
     }
 }

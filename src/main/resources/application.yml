@@ -58,8 +58,11 @@ popular-menu:
 order-event:
   kafka:
     topic: ${ORDER_EVENT_KAFKA_TOPIC:coffee.order.created}
+    dlt-topic: ${ORDER_EVENT_KAFKA_DLT_TOPIC:coffee.order.created.dlt}
     partitions: ${ORDER_EVENT_KAFKA_PARTITIONS:3}
     replication-factor: ${ORDER_EVENT_KAFKA_REPLICATION_FACTOR:1}
     consumer:
       group-id: ${ORDER_EVENT_KAFKA_CONSUMER_GROUP_ID:coffee-order-consumer}
       concurrency: ${ORDER_EVENT_KAFKA_CONCURRENCY:3}
+      retry-interval-ms: ${ORDER_EVENT_KAFKA_RETRY_INTERVAL_MS:1000}
+      retry-max-attempts: ${ORDER_EVENT_KAFKA_RETRY_MAX_ATTEMPTS:3}

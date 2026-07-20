@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -56,6 +57,21 @@ class OrderEventConsumerServiceTest {
         orderEventConsumerService.consume("coffee.order.created", 0, 15L, 1L, "{\"orderId\":1}");
 
         verify(orderEventPayloadMapper, never()).fromJson(any());
+        verify(orderEventConsumeLogRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("복구 불가능한 payload 오류는 그대로 전파한다")
+    void consumePropagatesUnrecoverableException() {
+        given(orderEventConsumeLogRepository.existsByOrderId(1L)).willReturn(false);
+        given(orderEventPayloadMapper.fromJson("{\"orderId\":1}"))
+                .willThrow(new OrderEventUnrecoverableException("invalid payload", new RuntimeException()));
+
+        assertThrows(
+                OrderEventUnrecoverableException.class,
+                () -> orderEventConsumerService.consume("coffee.order.created", 0, 15L, 1L, "{\"orderId\":1}")
+        );
+
         verify(orderEventConsumeLogRepository, never()).save(any());
     }
 }

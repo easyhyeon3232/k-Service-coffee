@@ -65,6 +65,9 @@ class OrderServiceTest {
     @Mock
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Mock
+    private OrderEventPayloadMapper orderEventPayloadMapper;
+
     @Test
     @DisplayName("판매 중인 메뉴를 주문하면 포인트 차감, 주문 저장, outbox 저장이 함께 처리된다")
     void orderSuccess() {
@@ -80,6 +83,7 @@ class OrderServiceTest {
         given(pointWalletRepository.findByMemberIdForUpdate(1L)).willReturn(Optional.of(pointWallet));
         given(coffeeOrderRepository.save(any(CoffeeOrder.class))).willAnswer(invocation -> invocation.getArgument(0));
         given(pointHistoryRepository.save(any(PointHistory.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(orderEventPayloadMapper.toJson(any())).willReturn("{\"orderId\":1}");
         given(orderOutboxRepository.save(any(OrderOutbox.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         OrderCreateResponse response = orderService.order(1L, 10L, "order-1");

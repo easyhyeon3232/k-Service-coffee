@@ -1,5 +1,7 @@
 package com.example.coffee.domin.order.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -16,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,8 +50,8 @@ class OrderEventDltPublisherTest {
         orderEventDltPublisher.publish(record, new RuntimeException("temporary failure"));
 
         verify(kafkaTemplate).send("coffee.order.created.dlt", "1", "{\"dlt\":true}");
-        org.junit.jupiter.api.Assertions.assertEquals(3, payloadCaptor.getValue().retryCount());
-        org.junit.jupiter.api.Assertions.assertEquals("temporary failure".contains("temporary"), true);
+        assertEquals(3, payloadCaptor.getValue().retryCount());
+        assertTrue(payloadCaptor.getValue().failureReason().contains("temporary failure"));
     }
 
     @Test
@@ -68,6 +69,6 @@ class OrderEventDltPublisherTest {
         );
 
         verify(kafkaTemplate).send("coffee.order.created.dlt", "1", "{\"dlt\":true}");
-        org.junit.jupiter.api.Assertions.assertEquals(0, payloadCaptor.getValue().retryCount());
+        assertEquals(0, payloadCaptor.getValue().retryCount());
     }
 }

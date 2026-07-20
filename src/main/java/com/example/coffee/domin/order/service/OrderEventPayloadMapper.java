@@ -31,7 +31,7 @@ public class OrderEventPayloadMapper {
         try {
             return objectMapper.readValue(payload, OrderEventPayload.class);
         } catch (JsonProcessingException exception) {
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new OrderEventUnrecoverableException("주문 이벤트 payload 역직렬화에 실패했습니다.", exception);
         }
     }
 }

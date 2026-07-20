@@ -44,10 +44,11 @@ public class OrderEventRelayService {
                 .forEach(this::send);
     }
 
+    // 인기 메뉴 캐시 반영과 Kafka 발행이 끝난 뒤에만 outbox 상태를 SENT로 바꾼다.
     private void send(OrderOutbox orderOutbox) {
         try {
             popularMenuCacheService.recordOrder(orderOutbox.getOrder());
-            orderEventSender.send(orderOutbox.getPayload());
+            orderEventSender.send(orderOutbox.getOrder().getId(), orderOutbox.getPayload());
             orderOutbox.markSent();
         } catch (RuntimeException exception) {
             orderOutbox.markRetryFailure(maxRetryCount);
